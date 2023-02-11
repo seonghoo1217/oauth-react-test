@@ -8,10 +8,7 @@ spring:
             client-secret: 5e6b461f457ef757c6df42a68d40bd172a1a8fe1
             redirectUri : "http://localhost:3000/oauth2/callback"
             scope: user
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+
 
   profiles:
     group:
@@ -23,10 +20,6 @@ spring:
   config:
     activate:
       on-profile: "local"
-
-  h2:
-    console:
-      enabled: true
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
