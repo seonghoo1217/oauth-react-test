@@ -1,12 +1,13 @@
 package com.example.oauthreacttest.handler;
 
 import com.example.oauthreacttest.domain.oauth.CustomOAuth2User;
-\import lombok.RequiredArgsConstructor;
+import com.example.oauthreacttest.service.jwt.JwtService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +17,6 @@ import java.io.IOException;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-//@Transactional
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final JwtService jwtService;

@@ -1,10 +1,17 @@
 package com.example.oauthreacttest.filter.jwt;
 
+import com.example.oauthreacttest.domain.Member;
+import com.example.oauthreacttest.repository.MemberRepository;
+import com.example.oauthreacttest.service.jwt.JwtService;
+import com.example.oauthreacttest.util.PasswordUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,12 +21,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@RequiredArgsConstructor
+@Log4j2
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
 	private static final String NO_CHECK_URL = "/oauth2/**"; // "/login"으로 들어오는 요청은 Filter 작동 X
 
 	private final JwtService jwtService;
-	private final UserRepository userRepository;
+	private final MemberRepository memberRepository;
 
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -62,10 +71,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 *  그 후 JwtService.sendAccessTokenAndRefreshToken()으로 응답 헤더에 보내기
 	 */
 	public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-		userRepository.findByRefreshToken(refreshToken)
-				.ifPresent(user -> {
-					String reIssuedRefreshToken = reIssueRefreshToken(user);
-					jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
+		memberRepository.findByRefreshToken(refreshToken)
+				.ifPresent(member -> {
+					String reIssuedRefreshToken = reIssueRefreshToken(member);
+					jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(member.getEmail()),
 							reIssuedRefreshToken);
 				});
 	}
@@ -75,10 +84,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 * jwtService.createRefreshToken()으로 리프레시 토큰 재발급 후
 	 * DB에 재발급한 리프레시 토큰 업데이트 후 Flush
 	 */
-	private String reIssueRefreshToken(User user) {
+	private String reIssueRefreshToken(Member member) {
 		String reIssuedRefreshToken = jwtService.createRefreshToken();
-		user.updateRefreshToken(reIssuedRefreshToken);
-		userRepository.saveAndFlush(user);
+		member.updateRefreshToken(reIssuedRefreshToken);
+		memberRepository.saveAndFlush(member);
 		return reIssuedRefreshToken;
 	}
 
@@ -96,7 +105,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 		jwtService.extractAccessToken(request)
 				.filter(jwtService::isTokenValid)
 				.ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-						.ifPresent(email -> userRepository.findByEmail(email)
+						.ifPresent(email -> memberRepository.findByEmail(email)
 								.ifPresent(this::saveAuthentication)));
 
 		filterChain.doFilter(request, response);
@@ -117,16 +126,16 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 	 * SecurityContextHolder.getContext()로 SecurityContext를 꺼낸 후,
 	 * setAuthentication()을 이용하여 위에서 만든 Authentication 객체에 대한 인증 허가 처리
 	 */
-	public void saveAuthentication(User myUser) {
-		String password = myUser.getPassword();
+	public void saveAuthentication(Member member) {
+		String password = member.getPassword();
 		if (password == null) { // 소셜 로그인 유저의 비밀번호 임의로 설정 하여 소셜 로그인 유저도 인증 되도록 설정
 			password = PasswordUtil.generateRandomPassword();
 		}
 
-		UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-				.username(myUser.getEmail())
+		UserDetails userDetailsUser = User.builder()
+				.username(member.getEmail())
 				.password(password)
-				.roles(myUser.getRole().name())
+				.roles(member.getRole().name())
 				.build();
 
 		Authentication authentication =

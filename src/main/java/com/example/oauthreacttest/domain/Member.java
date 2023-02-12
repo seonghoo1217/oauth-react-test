@@ -18,6 +18,8 @@ public class Member {
 
 	private String name;
 
+	private String password;
+
 	private String email;
 
 	private String imageUrl;
@@ -30,4 +32,7 @@ public class Member {
 
 	private String refreshToken;
 
+	public void updateRefreshToken(String updateRefreshToken){
+		this.refreshToken=updateRefreshToken;
+	}
 }
