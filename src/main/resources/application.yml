@@ -22,8 +22,8 @@ spring:
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://oauth2.c9d71oyl8as0.ap-northeast-2.rds.amazonaws.com:3306/oauth
-    username: root
+    url: jdbc:mariadb://oauth.c9d71oyl8as0.ap-northeast-2.rds.amazonaws.com:3306/oauth
+    username: admin
     password: 12345678
 
   jpa:
