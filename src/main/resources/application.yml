@@ -6,7 +6,7 @@ spring:
           github:
             client-id: 5b3c8931560d04387997
             client-secret: 5e6b461f457ef757c6df42a68d40bd172a1a8fe1
-            redirectUri: "http://localhost:3000/login/oauth2/code/github"
+            redirectUri: "http://localhost:8080/login/oauth2/code/github"
             scope: user
 
 
