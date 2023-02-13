@@ -21,9 +21,11 @@ public class CallBackController {
 
 	@GetMapping("/login/oauth2/code/github")
 	@ResponseBody
-	public void getCallbackGithub(@PathParam("code") String code ,HttpServletResponse httpServletResponse){
-		System.out.println("code="+code);
-		System.out.println("access="+httpServletResponse.getHeader("Authorization"));
+	public ResponseEntity<?> getCallbackGithub(@PathParam("code") String code,HttpServletResponse httpServletResponse) throws IOException {
+		log.info("git code="+code);
+		String accessToken = gitHubSocialService.getAccessToken(code);
+		httpServletResponse.sendRedirect("http://localhost:3000/callback");
+		return new ResponseEntity<>(accessToken, HttpStatus.OK);
 	}
 
 	@GetMapping ("/callback/github")
