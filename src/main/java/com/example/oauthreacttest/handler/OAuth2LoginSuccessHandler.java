@@ -40,6 +40,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 //                findUser.authorizeUser();
 			} else {*/
 			loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
+			response.sendRedirect("http://localhost:3000/callback");
 //			}
 		} catch (Exception e) {
 			throw e;
