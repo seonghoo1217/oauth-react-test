@@ -26,7 +26,7 @@ public class CallBackController {
 		System.out.println("access="+httpServletResponse.getHeader("Authorization"));
 	}*/
 
-	@PostMapping ("/callback/github")
+	@GetMapping ("/callback/github")
 	public ResponseEntity<?> getLogin(@PathParam("code") String code) throws IOException {
 		log.info("git code="+code);
 		String accessToken = gitHubSocialService.getAccessToken(code);
